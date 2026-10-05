@@ -1,15 +1,17 @@
 # Dependency-driven coding loops
 
-A curated, harness-neutral sourcebook for dependency-driven coding loops and selective
-fan-out, with profiles for Codex, Claude Code and pi.
+A curated, harness-neutral contract for dependency-driven coding loops, with one file per
+harness for pi, Claude Code and Codex.
 
-- [Protocol](fan-out-protocol.md): authority, bounded lanes, evidence, review and recovery.
+- [Loop contract](loop/contract.md): admission, dispatch, acceptance, evidence, parks and close-out.
+- Harness files: [pi](loop/harness-pi.md), [Claude Code](loop/harness-claude.md),
+  [Codex](loop/harness-codex.md).
 - [Backlog board setup](docs/backlog-board-setup.md): tracker setup and migration.
 
 Installation-specific organisations, private repositories and credential locations are
 replaced with neutral examples. Work context denotes a work environment, not a particular
 employer or customer. Paths beginning with `$` are operator-supplied locations.
-The sourcebook includes illustrative local fleet procedures; adapt them to your own
+The documents include illustrative local fleet procedures; adapt them to your own
 infrastructure. No publication, drift, notification or reconciliation tooling is included.
 
 This tree is a standalone export with fresh history, not a mirror of the source repository.

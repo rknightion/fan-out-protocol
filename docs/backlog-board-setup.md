@@ -162,22 +162,25 @@ not reorder, draft saves, the TUI path, `doc update` or decision updates.
 
 ## 4. The document set
 
-**Doc A, the fan-out protocol, is generated. Doc B is written fresh for the repo.** They must not
-overlap: a repo-specific doc written as a compression of the protocol drifts immediately.
+**Doc A, the loop pointer, is generated. Doc B is written fresh for the repo.** They must not
+overlap: a repo-specific doc that restates the loop contract drifts immediately.
 
-### Doc A: the fan-out protocol
+### Doc A: the loop pointer
 
-Build output, rendered from `sources/fan-out-protocol.md` here. Never hand-copy it and never edit a
+Build output, rendered from `sources/loop-pointer.md` here under its own header, which marks it as a
+pointer, not authoritative. It names the canonical loop files in `$PROTOCOL_SOURCE/sources/loop/`;
+the protocol itself is never copied into a consumer. Never hand-copy the pointer and never edit a
 consumer's copy. Onboarding is the four coupled edits in `AGENTS.md` "Adding a consumer repository",
-then `just publish fan-out-protocol` on a publisher host (`publisher-host`). `bin/sync` is retired
-and exits 2.
+then `just publish loop-pointer` on a publisher host (`publisher-host`). `bin/sync` is retired and
+exits 2.
 
-- **Create the doc first**, with `backlog doc create "Agent fan-out protocol (canonical)" -t
-  specification`, and before the repo's other docs so it usually lands at `doc-0001`. Nothing depends
-  on the number: `registry.tsv` records what the CLI assigned, and one consumer keeps it at `doc-0005`.
+- **Create the doc first**, with `backlog doc create "Loop protocol pointer" -t specification`, and
+  before the repo's other docs so it usually lands at `doc-0001`. Nothing depends on the number:
+  `registry.tsv` records what the CLI assigned, and one consumer keeps it at `doc-0005`. Older consumers
+  keep their original doc title; publication replaces only the body.
 - The rendered header names the source commit, not a date. Do not write a header.
-- Changing the protocol: edit the source, commit and push, then publish. Consumers receive it through
-  normal `git pull`.
+- Changing the loop protocol: edit `sources/loop/`, commit and push. Consumers need no publication,
+  because the pointer does not change; publish only when the pointer itself changes.
 - A new consumer **owner** needs OpenBao work (permission set, mint step, `token_for`) or the daily
   drift run fails for every repo; a new repo under an existing owner still needs adding to that
   owner's permission-set repository list, or it reports `NO TOKEN`. List wired owners live:
@@ -186,13 +189,13 @@ and exits 2.
   awk -F'\t' '/^[^#]/ && NF {split($2,a,"/"); print a[1]}' $PROTOCOL_SOURCE/registry.tsv | sort -u
   ```
 
-- **Why a copy per repo:** an agent with only the checkout, in CI or on another machine, has the whole
-  model. Backlog docs load on demand, so a long document costs nothing until read. Do not compress it.
+- **Why a pointer, not a copy:** full copies went stale across the fleet while agents kept reading
+  them. Running agents read only their goal, the contract and their harness file, by path.
 
 **Recorded exception: `rknightion/grafana-aio11y-demo` carries no Doc A.** It is a public
-customer-facing demo whose scrub gate rejects the rendered protocol, and the protocol is internal
+customer-facing demo whose scrub gate rejected the rendered protocol, and the protocol is internal
 guidance. Its `doc-0001` says so, and it has no `registry.tsv` row. A loop on that repo reads the
-protocol from this checkout. Do not "fix" it by registering the repo.
+loop files from this checkout. Do not "fix" it by registering the repo.
 
 ### Doc B: the repo's own specifics
 
@@ -205,7 +208,7 @@ registered like Doc A. Everywhere else it is genuinely per-repo; do not try to u
 restates nothing from Doc A and carries only: rules this project added (each with the failure behind
 it), recurring defects in this codebase, lane conventions and exclusive resources, ownership
 conventions including the escape hatch, and run end against this repo's tracker. A section that could
-be pasted into another project unchanged belongs in Doc A.
+be pasted into another project unchanged belongs in the loop contract, not here.
 
 ### Optional docs and wiring
 
@@ -222,19 +225,19 @@ and key tooling on `registry.tsv`.**
 Point `AGENTS.md` at both, outside the markers:
 
 ```markdown
-- Read the fan-out protocol doc before designing a loop, and the wave operating model doc for this
-  project's own rules. `backlog doc list --plain` shows both.
+- Read the loop protocol pointer doc before designing a loop, and the wave operating model doc for
+  this project's own rules. `backlog doc list --plain` shows both.
 ```
 
 ## 5. Loop artefacts every consumer needs
 
 - **A committed `LOOP.md`**, pointed to from `AGENTS.md` under `## Deeper references` (outside the
-  markers): gates and commands, release rules, environments and credential conventions, standing
-  route exceptions, traps, cross-harness eligibility, resource mutexes and Grafana stacks. No em or
-  en dashes in it; several consumers gate shipped text on that.
+  markers), in the shape `sources/loop/planner.md` gives and `loop-lint loopmd` checks: at most 6 KB,
+  key lines first, nothing dated. No em or en dashes in it; several consumers gate shipped text on
+  that.
 - **A gitignored `codex/` at the repo root** for run artefacts. The name is load-bearing:
   `bin/codex-reconcile` targets it exactly, and `bin/conformance` checks the ignore line.
-- The protocol is authoritative on everything else, including that the run-end report is a file in
+- The loop contract is authoritative on everything else, including that the run-end report is a file in
   `codex/` whether or not the repo has a tracker.
 
 ## 6. Deliberately not done
