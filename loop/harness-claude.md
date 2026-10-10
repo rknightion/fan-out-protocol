@@ -12,6 +12,7 @@ The launch file's first line is the command; the message follows it:
 
 - The root runs Opus 5.5 at `high`, set on the `cmd:` line. Never a newer model or a higher effort.
 - Follow the contract's relaunch rule; this harness supports a bare launch file path, not ops grants.
+- Check the launch's `Standing:` file with `shasum -a 256`; a mismatch means none and a `judgement`.
 - The plugin's Stop hook arms on "You are the root" plus exactly one `codex/report-...-loop<N>.md`
   path, or a bare path to a launch file holding them.
 - `loop-state` is on `PATH`. Append every event yourself, `dispatch` and `return` included.
@@ -27,21 +28,24 @@ different from the root's.
 
 | Role | `subagent_type` | Model / effort |
 |---|---|---|
-| single-fact lookup, self-evidently right or wrong | generic, `model: haiku` | Haiku |
-| mapping; retrieval where completeness matters | `agent-workflows:mapper` | Sonnet / low |
-| gate | `agent-workflows:gate-runner` | Sonnet / low |
-| one root-owned watch | `agent-workflows:poller` | Sonnet / low |
-| implementation | `agent-workflows:lane-worker` | Sonnet / high |
-| cross-file or judgement | `agent-workflows:complex-worker` | Opus / high |
-| review | `agent-workflows:reviewer` | Opus / medium |
-| security review | `agent-workflows:security-reviewer` | Opus / high |
-| rescue | `agent-workflows:rescue-specialist` | Opus / high |
-| design decision | the root, or generic `model: opus` | Opus at the root's effort |
+| single-fact lookup, self-evidently right or wrong | generic, `model: haiku` | Haiku 5.5 |
+| mapping; retrieval where completeness matters | `agent-workflows:mapper` | Sonnet 5.5 / medium |
+| gate | `agent-workflows:gate-runner` | Sonnet 5.5 / low |
+| one root-owned watch | `agent-workflows:poller` | Haiku 5.5 / medium |
+| implementation | `agent-workflows:lane-worker` | Sonnet 5.5 / high |
+| cross-file or judgement | `agent-workflows:complex-worker` | Opus 5.5 / medium |
+| review | `agent-workflows:reviewer` | Opus 5.5 / medium |
+| security review | `agent-workflows:security-reviewer` | Opus 5.5 / high |
+| rescue | `agent-workflows:rescue-specialist` | Opus 5.5 / high |
+| escalation (owner-named) | `agent-workflows:megasuper-worker` | Opus 5.5 / xhigh |
+| design decision | the root, or generic `model: opus` | Opus 5.5 at the root's effort |
 
+- SUPER on Claude is the existing Opus/high pins; only `megasuper-worker` runs above high.
 - Never pass `model` to a pinned agent: it overrides the pin.
 - `effort` is not an `Agent` parameter. A generic spawn runs at the root's effort.
 - If an `agent-workflows:*` type is missing, the plugin is not installed: dispatch generically with
-  the table's model and record that the lane ran at the root's effort.
+  the table's model and record that the lane ran at the root's effort. A missing `megasuper-worker`
+  parks `needs=defect` instead.
 - The ladder: `lane-worker` (2 attempts), root rescue (1), `rescue-specialist` (1). A
   `complex-worker` lane has the same 2; the root's rescue applies only when it has a concrete
   correction the worker lacked.
@@ -55,7 +59,8 @@ different from the root's.
 - Never `subagent_type: "fork"` for a lane: it copies the whole conversation at the root's model.
 - At most 20 running subagents; the 21st fails with `Concurrent subagent limit reached`. Do not
   retry it: wait for a return. When lanes may delegate, start at most 13 and keep 7 in reserve.
-- Subagents may nest 3 deep, so a brief must say when a lane may not delegate.
+- Subagents may nest 3 deep, so a brief must say when a lane may not delegate. `complex-worker`
+  delegates only when its brief allows it.
 - `isolation: "worktree"` branches from the default branch, not the root's `HEAD`: commit
   prerequisites to the base first.
 - `Workflow` runs a frozen topology as a script, but only when the owner's own launch message opts in
@@ -64,6 +69,13 @@ different from the root's.
 
 ## Waits
 
+- `LOOP.md`'s optional `ci-status` replaces `gh` CI waits/reads: substitute the exact full SHA for
+  every `{sha}` and poll the one-shot command in the repo cwd in a background `until` loop
+  (`run_in_background`). Stop on combined `success` or `failure`, not exit 0; unknown/missing stays
+  `pending`. Bound each read and the loop by `ci-max-minutes` (default 30), sleep 60 s between reads.
+  A deadline means "not observed"; transport/auth errors are unreadable, never a CI conclusion.
+  A poller's readback quotes the command's raw output and SHA instead of `gh run view`.
+  Lanes use the same loop within their bounded foreground wait. Without the key, GitHub is unchanged.
 - A lane's completion arrives as a task notification. That is the lane wait.
 - The root's own wait (landing CI, a release) is one `run_in_background` Bash command whose `until`
   loop exits on every terminal state; its completion wakes the session. Streamed events use
@@ -87,8 +99,10 @@ different from the root's.
 - The Stop hook re-prompts a root that ends its turn without a counting report, a current `PAUSED:`
   or a valid `WAITING: ... until <deadline>`, at most three times in one chain; then it allows the
   stop and writes an incident. A new launch re-arms it.
-- The local watchdog alerts on a dead loop (no report or marker, and no new turn for 15 minutes). It
-  never resumes or kills anything.
+- The local watchdog sends dead-loop `stalled` alerts (no report or marker, and no new turn for
+  15 minutes) to Grafana only. Phone alerts are limited to `hook-exhausted`, `hook-exception` and
+  pi root context overflow (`loop-root-context-overflow`); all alerts also go to Grafana. It never
+  resumes or kills anything.
 
 ## Closeout sweep
 

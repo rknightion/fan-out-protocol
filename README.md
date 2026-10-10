@@ -1,11 +1,11 @@
 # Dependency-driven coding loops
 
 A curated, harness-neutral contract for dependency-driven coding loops, with one file per
-harness for pi, Claude Code and Codex.
+harness for pi, Claude Code, Claude Code on GPT models and Codex.
 
 - [Loop contract](loop/contract.md): admission, dispatch, acceptance, evidence, parks and close-out.
 - Harness files: [pi](loop/harness-pi.md), [Claude Code](loop/harness-claude.md),
-  [Codex](loop/harness-codex.md).
+  [Claude Code on GPT](loop/harness-claude-openai.md), [Codex](loop/harness-codex.md).
 - [Backlog board setup](docs/backlog-board-setup.md): tracker setup and migration.
 
 Installation-specific organisations, private repositories and credential locations are

@@ -6,12 +6,13 @@ Read at launch with the contract and the goal. Self-contained for Codex.
 
 The launch file's first line is the command; the message follows it:
 
-    cmd: codex -m gpt-6.1-sol -c model_reasoning_effort=medium
+    cmd: codex -m gpt-6.1-sol -c model_reasoning_effort=high
     You are the root. Read $PROTOCOL_SOURCE/sources/loop/contract.md, $PROTOCOL_SOURCE/sources/loop/harness-codex.md
     and <abs goal path> in full. Write <abs report path> as the terminal action.
 
-- The root runs `gpt-6.1-sol` at medium.
+- The root runs `gpt-6.1-sol` at high.
 - Follow the contract's relaunch rule using the full launch message; this harness has no ops grants.
+- Check the launch's `Standing:` file with `shasum -a 256`; a mismatch means none and a `judgement`.
 - The plugin's Stop hook arms on "You are the root" plus one report path. It releases a stop only for
   a counting report or a current `PAUSED:` line. **Nothing wakes a Codex root that ends its turn**, so
   `WAITING:` releases nothing: hold the turn with `collaboration.wait_agent` until the report is
@@ -25,21 +26,24 @@ The launch file's first line is the command; the message follows it:
 |---|---|---|
 | implementation (default) | `lane-worker` | `gpt-6.1-sol` / medium |
 | mechanical, tightly specified | generic | `gpt-6.1-sol` / low |
-| retry | generic | `gpt-6.1-sol` / high |
-| cross-file or judgement | generic | `gpt-6.1-sol` / high |
-| rescue | generic | `gpt-6.1-sol` / high, or `gpt-6-astra` / medium |
-| security review | generic | `gpt-6.1-sol` / high |
-| review | `reviewer` | `gpt-6.1-sol` / medium; complex decisions high |
+| retry | `lane-worker-retry` | `gpt-6.1-sol` / high |
+| cross-file or judgement | `complex-worker` | `gpt-6.1-sol` / medium |
+| rescue, rung 1; rung 2 | generic | `gpt-6-astra` / medium; `gpt-6-astra` / high |
+| escalation (opt-in) | `super-worker` | `gpt-6-astra` / high |
+| escalation (owner-named) | `megasuper-worker` | `gpt-6-astra` / xhigh |
+| security review | `security-reviewer` | `gpt-6.1-sol` / high |
+| review | `reviewer`; complex decisions generic | `gpt-6-luna` / high; `gpt-6.1-sol` / high |
 | gate | generic | `gpt-6.1-sol` / low |
-| one root-owned watch | `poller`; `poller-high` | `gpt-6-luna` / medium; high |
-| read-only map | generic | `gpt-6-luna` / medium; substantial synthesis high |
+| one root-owned watch | `poller` | `gpt-6-luna` / high |
+| read-only map | generic | `gpt-6.1-sol` / low; deep synthesis medium |
 
 - Spawn a custom agent by `agent_type` only when its installed pin matches its row; pass no model or
   effort to it. Otherwise spawn generic with explicit `model` and `reasoning_effort`. A spawn with
   neither inherits the root's route.
-- Luna is never the root or a writing agent. Astra is for rescue only. Never Astra above medium.
-- The ladder: worker, retry worker, root rescue, one specialist rescue. Each worker gets exactly its
-  one pre-granted attempt.
+- Luna is never the root or a writing agent; it may poll and review. The high review route is
+  generic `gpt-6.1-sol` / high. Astra: rescue, and the SUPER/MEGASUPER rows under the planner rule.
+- The ladder: worker, retry worker, rescue rung 1 (Astra/medium), then rung 2 (Astra/high) only
+  after rung 1 fails. There is no root rescue. Each worker gets exactly its one pre-granted attempt.
 
 ## Dispatch
 
@@ -59,6 +63,13 @@ The launch file's first line is the command; the message follows it:
 
 ## Waits
 
+- `LOOP.md`'s optional `ci-status` replaces `gh` CI waits/reads: substitute the exact full SHA for
+  every `{sha}` and poll the one-shot command in the repo cwd in a background `until` loop
+  (a yielded foreground exec session, never `&`). Stop on combined `success` or `failure`, not exit 0;
+  unknown/missing stays `pending`. Bound reads and the loop by `ci-max-minutes` (default 30),
+  sleep 60 s between reads. Deadline means "not observed"; transport/auth errors are unreadable.
+  A poller's readback quotes raw command output and SHA instead of `gh run view`.
+  Lanes use the same loop in the process-wait cell below. Without the key, GitHub is unchanged.
 - With lanes in flight and no local work, make one `collaboration.wait_agent` call. Every wait lasts
   19 minutes (`min_wait_timeout_ms` is 1140000) unless a child finishes or messages first.
 - **Returns arrive in context, not in the wait.** A child's `FINAL_ANSWER` lands in context when it
