@@ -33,7 +33,7 @@ is a gateway lane that fixes its model and effort.
 |---|---|---|
 | implementation | `agent-workflows:lane-worker` | sol / medium |
 | mechanical, tightly specified | generic, `model: sonnet` | sol / medium |
-| cross-file or judgement | `agent-workflows:complex-worker` | sol / medium |
+| cross-file or judgement | `agent-workflows:complex-worker` | sol / high |
 | mapping, complete retrieval | `agent-workflows:mapper` | sol / low |
 | gate | `agent-workflows:gate-runner` | sol / low |
 | one root-owned watch | `agent-workflows:poller` | luna / high |

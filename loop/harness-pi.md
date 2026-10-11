@@ -45,7 +45,7 @@ Read contract/goal.
 | implementation | `lane-worker(-push)` | sol / medium |
 | mechanical | `lane-worker-low(-push)` | sol / low |
 | retry | `lane-worker-retry(-push)` | sol / high |
-| judgement | `complex-worker(-push)` | sol / medium |
+| judgement | `complex-worker(-push)` | sol / high |
 | rescue | `rescue-astra-medium`; `rescue-astra` | astra / medium; astra / high |
 | SUPER; MEGASUPER | `super-worker(-push)`; `megasuper-worker(-push)` | astra / high; astra / xhigh |
 | security review | `security-reviewer` | sol / high |

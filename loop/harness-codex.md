@@ -27,7 +27,7 @@ The launch file's first line is the command; the message follows it:
 | implementation (default) | `lane-worker` | `gpt-6.1-sol` / medium |
 | mechanical, tightly specified | generic | `gpt-6.1-sol` / low |
 | retry | `lane-worker-retry` | `gpt-6.1-sol` / high |
-| cross-file or judgement | `complex-worker` | `gpt-6.1-sol` / medium |
+| cross-file or judgement | `complex-worker` | `gpt-6.1-sol` / high |
 | rescue, rung 1; rung 2 | generic | `gpt-6-astra` / medium; `gpt-6-astra` / high |
 | escalation (opt-in) | `super-worker` | `gpt-6-astra` / high |
 | escalation (owner-named) | `megasuper-worker` | `gpt-6-astra` / xhigh |
