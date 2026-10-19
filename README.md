@@ -1,7 +1,8 @@
 # Dependency-driven coding loops
 
 **Archived.** This repository holds an earlier version of the loop protocol and is no longer
-updated. The current contract, charter template, lane brief and harness files are published at
+updated. The current protocol, with the Claude Code plugin that runs it, is at
+<https://github.com/rknightion/agent-workflows>, and the rendered protocol is published at
 <https://rob-knight.com/reference/loop-contract/>.
 
 A curated, harness-neutral contract for dependency-driven coding loops, with one file per
